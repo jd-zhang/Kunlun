@@ -1,0 +1,9 @@
+Name: libecpg
+Description: PostgreSQL libecpg library
+Url: http://www.postgresql.org/
+Version: 11.5
+Requires: 
+Requires.private: libpq libpgtypes
+Cflags: -I/home/david/Downloads/postgresql-11.5/install/include
+Libs: -L/home/david/Downloads/postgresql-11.5/install/lib -lecpg
+Libs.private: -L/usr/lib/x86_64-linux-gnu -lm

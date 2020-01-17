@@ -1,0 +1,18 @@
+[
+   {
+      "id":1,
+      "name":"comp3",
+      "ip":"127.0.0.1",
+      "port":5433,
+      "user":"zw",
+      "password":"zw"
+   },    
+   {
+      "id":2,
+      "name":"comp4",
+      "ip":"127.0.0.1",
+      "port":5434,
+      "user":"zw",
+      "password":"zw"
+   }
+]

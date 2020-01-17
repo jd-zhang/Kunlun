@@ -1,0 +1,52 @@
+[
+{
+   "shard_name": "shard3",
+   "shard_nodes":
+   {
+       "master":
+       {
+          "ip": "192.1.1.11",
+          "port": 4601,
+          "user": "zw",
+          "password":"zw"
+       },
+   
+       "slave":
+       {
+          "ip": "192.1.1.12",
+          "port": 4602,
+          "user": "zw",
+          "password":"zw"
+       },
+       "slave":
+       {
+          "ip": "192.1.1.13",
+          "port": 4603,
+          "user": "zw",
+          "password":"zw"
+       }
+   }
+}
+,
+{
+   "shard_name": "shard4",
+   "shard_nodes":
+   {
+       "master":
+       {
+          "ip": "192.1.1.13",
+          "port": 4604,
+          "user": "zw",
+          "password":"zw"
+       },
+   
+       "slave":
+       {
+          "ip": "192.1.1.12",
+          "port": 4605,
+          "user": "zw",
+          "password":"zw"
+       }
+   }
+}
+]

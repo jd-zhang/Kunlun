@@ -1,0 +1,23 @@
+2020-01-08 22:27:40.295 CST [1663] LOG:  listening on IPv4 address "127.0.0.1", port 5435
+2020-01-08 22:27:40.361 CST [1663] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5435"
+2020-01-08 22:27:40.512 CST [1665] LOG:  database system was interrupted; last known up at 2020-01-08 22:10:58 CST
+2020-01-08 22:27:40.669 CST [1665] LOG:  database system was not properly shut down; automatic recovery in progress
+2020-01-08 22:27:40.697 CST [1665] LOG:  redo starts at 0/15FB708
+2020-01-08 22:27:40.697 CST [1665] LOG:  invalid record length at 0/15FB7E8: wanted 24, got 0
+2020-01-08 22:27:40.697 CST [1665] LOG:  redo done at 0/15FB7B0
+2020-01-08 22:27:40.874 CST [1663] LOG:  database system is ready to accept connections
+2020-01-08 22:28:40.946 CST [1663] LOG:  Decided not to start bgworkers.
+2020-01-08 22:29:41.057 CST [1663] LOG:  Decided not to start bgworkers.
+2020-01-08 22:30:41.065 CST [1663] LOG:  Decided not to start bgworkers.
+2020-01-08 22:31:41.086 CST [1663] LOG:  Decided not to start bgworkers.
+2020-01-08 22:32:41.092 CST [1663] LOG:  Decided not to start bgworkers.
+2020-01-08 22:33:41.150 CST [1663] LOG:  Decided not to start bgworkers.
+2020-01-08 22:34:29.617 CST [1663] LOG:  received fast shutdown request
+2020-01-08 22:34:29.656 CST [1663] LOG:  aborting any active transactions
+2020-01-08 22:34:29.657 CST [1663] LOG:  background worker "logical replication launcher" (PID 1674) exited with exit code 1
+2020-01-08 22:34:29.657 CST [1663] LOG:  background worker "global_deadlock_detector" (PID 1673) exited with exit code 1
+2020-01-08 22:34:51.751 CST [1663] LOG:  XID Sender (PID 1672) was terminated by signal 9: Killed
+2020-01-08 22:34:51.751 CST [1663] LOG:  terminating any other active server processes
+2020-01-08 22:34:51.751 CST [1663] LOG:  Do not call bgworkers during crash recovery.
+2020-01-08 22:34:51.753 CST [1663] LOG:  abnormal database system shutdown
+2020-01-08 22:34:51.762 CST [1663] LOG:  database system is shut down

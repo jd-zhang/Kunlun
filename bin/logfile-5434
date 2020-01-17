@@ -1,0 +1,41 @@
+2020-01-08 22:05:57.856 CST [897] LOG:  listening on IPv4 address "127.0.0.1", port 5434
+2020-01-08 22:05:57.922 CST [897] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5434"
+2020-01-08 22:05:58.040 CST [898] LOG:  database system was shut down at 2020-01-08 22:04:02 CST
+2020-01-08 22:05:58.118 CST [897] LOG:  database system is ready to accept connections
+2020-01-08 22:06:08.350 CST [908] ERROR:  Transaction ID allocation requires completion of starting ID check for this run.
+2020-01-08 22:06:08.350 CST [908] HINT:  Wait a little while and retry, this error only ever happens at beginning of Postgres startup.
+2020-01-08 22:06:08.350 CST [908] STATEMENT:  create table t1(a int);
+2020-01-08 22:06:20.389 CST [908] ERROR:  Transaction ID allocation requires completion of starting ID check for this run.
+2020-01-08 22:06:20.389 CST [908] HINT:  Wait a little while and retry, this error only ever happens at beginning of Postgres startup.
+2020-01-08 22:06:20.389 CST [908] STATEMENT:  create table t1(a int);
+2020-01-08 22:06:58.160 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:07:58.222 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:08:58.281 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:09:58.337 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:10:58.393 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:11:58.449 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:12:58.454 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:13:58.460 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:14:58.517 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:15:58.521 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:16:58.578 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:17:58.637 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:18:58.694 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:19:58.749 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:20:58.808 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:21:58.813 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:22:38.135 CST [904] ERROR:  cache lookup failed for cluster meta (pg_cluster_meta) by computing node id(comp_node_id) 4
+2020-01-08 22:22:38.135 CST [904] HINT:  comp_node_id variable must equal to pg_cluster_meta's single row's comp_node_id field.
+2020-01-08 22:22:58.869 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:23:58.873 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:24:58.874 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:25:58.874 CST [897] LOG:  Decided not to start bgworkers.
+2020-01-08 22:26:39.957 CST [897] LOG:  received fast shutdown request
+2020-01-08 22:26:39.987 CST [897] LOG:  aborting any active transactions
+2020-01-08 22:26:39.987 CST [897] LOG:  background worker "logical replication launcher" (PID 906) exited with exit code 1
+2020-01-08 22:26:39.988 CST [897] LOG:  background worker "global_deadlock_detector" (PID 905) exited with exit code 1
+2020-01-08 22:27:22.683 CST [897] LOG:  XID Sender (PID 1548) was terminated by signal 9: Killed
+2020-01-08 22:27:22.683 CST [897] LOG:  terminating any other active server processes
+2020-01-08 22:27:22.683 CST [897] LOG:  Do not call bgworkers during crash recovery.
+2020-01-08 22:27:22.684 CST [897] LOG:  abnormal database system shutdown
+2020-01-08 22:27:22.693 CST [897] LOG:  database system is shut down

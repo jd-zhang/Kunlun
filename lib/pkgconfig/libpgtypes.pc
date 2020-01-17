@@ -1,0 +1,9 @@
+Name: libpgtypes
+Description: PostgreSQL libpgtypes library
+Url: http://www.postgresql.org/
+Version: 11.5
+Requires: 
+Requires.private: 
+Cflags: -I/home/david/Downloads/postgresql-11.5/install/include
+Libs: -L/home/david/Downloads/postgresql-11.5/install/lib -lpgtypes
+Libs.private: -L/usr/lib/x86_64-linux-gnu -lm

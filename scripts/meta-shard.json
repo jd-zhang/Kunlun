@@ -1,0 +1,17 @@
+[
+   {
+      "ip": "127.0.0.1",
+      "port": 4607,
+      "user": "pgx",
+      "password":"pgx_pwd",
+      "is_master":true
+   },
+
+   {
+      "ip": "127.0.0.1",
+      "port": 4608,
+      "user": "pgx",
+      "password":"pgx_pwd",
+      "is_master":false
+   }
+]
