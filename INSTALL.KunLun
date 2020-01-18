@@ -1,8 +1,9 @@
-Installation Guides for Kunlun Distributed Database Cluster
+#Installation Guides for Kunlun Distributed Database Cluster
 
-I. Prerequisites
+##I. Prerequisites
 
 Install these software:
+   
 0. Linux running on a X86 architecture, and python.
 1. MySQL-5.7 or MySQL-8.0 server
 2. MySQL python connector, provided in ./resources/mysql-connector-python-2.1.3.tar.gz
@@ -10,63 +11,72 @@ Install these software:
 
 
 
-II. Preparations:
+##II. Preparations:
 
-1. Installing Meta-data MySQL Cluster
+###Installing Meta-data MySQL Cluster
 Install meta-data mysql cluster, and create a user for other components of the cluster to connect to the metadata cluster. Store the connection info in a file such as ./meta-shard.json. See the file meta-shard.json for example. This step is only needed once.
 
-2. Installing Storage Shards
+###Installing Storage Shards
 Install storage shards of the distributed database cluster, and create a user in each shard for other components of the cluster to connect to each of the shards. Store their connection info in a file such as ./my-shards.json. See the file shards-config.json for example.
 A storage shard and a meta-data mysql-cluster consists of one mysql master node and N mysql slave nodes. Install them as you did before. We recommend using mysql-8.0.x, you can also use MySQL-5.7.x, but not MySQL-5.6 or older. The meta data dump file ./meta_inuse.sql is dumped with mysql-8.0.15, so you may have to use mysql-8.0 for the metadata cluster.
 
 
-3. Installing Computing Nodes
+###Installing Computing Nodes
 
-Install computing nodes of Kunlun distributed database cluster using "KunLun Summit", i.e. this piece of software, in the same way one installs a PostgreSQL database instance. 
+Install computing nodes of Kunlun distributed database cluster using "KunLun", i.e. this piece of software, in the same way one installs a PostgreSQL database instance. 
 
 Then create one or more users for clients to connect to each of the computing nodes. Especially, one such user is for the installation scripts to connect to each computing node. Store each computing node's connection info in a json file such as ./my-comps.json. See the file comp-nodes.json for example.
-The computing node must use the config file in ./resources/postgresql.conf, which contains necessary configs for variables added in Kunlun Summit. After a "Kunlun Summit" instance is installed, replace its config file in its data directory with ./resources/postgresql.conf, then set its info properly. At least you need to set the 'port' variable to your specified port number, and set the 'comp_node_id' variable to the id specified in the config file ./my-comps.json.
+The computing node must use the config file in ./resources/postgresql.conf, which contains necessary configs for variables added in Kunlun. After a "Kunlun" instance is installed, replace its config file in its data directory with ./resources/postgresql.conf, then set its info properly. At least you need to set the 'port' variable to your specified port number, and set the 'comp_node_id' variable to the id specified in the config file ./my-comps.json.
 
 
-Steps to install a PostgreSQL or Kunlun Summit instance:
-a. Prepare an empty data directory, let's denote it 'pg-prog-dir' here. Go to pg-prog-dir.
-b. ./initdb -D pg-data-dir
-c. replace pg-data-dir/postgresql.conf with ./resources/postgresql.conf and set the 'port' variable to specified port
-d. start up postgres server
-e. connect to postgres server using default super user(same name as OS login name), e.g. ./psql -hlocalhost -p5443 -Udavid postgres
-f. create one or more users for clients to connect with, with proper priviledges, e.g. set skip_tidsync = true; CREATE USER abc PASSWORD 'abc' superuser; Note that one should only set skip_tidsync = true during installation phases. The user 'abc' is intended for installation scripts to access the computing node, so assign necessary priviledges to it.
+Steps to install a PostgreSQL or Kunlun instance:
+   
+1. Prepare an empty data directory, let's denote it 'pg-prog-dir' here. Go to pg-prog-dir.
+2. ./initdb -D pg-data-dir
+3. replace pg-data-dir/postgresql.conf with ./resources/postgresql.conf and set the 'port' variable to specified port
+4. start up postgres server
+5. connect to postgres server using default super user(same name as OS login name), e.g. ./psql -hlocalhost -p5443 -Udavid postgres
+6. create one or more users for clients to connect with, with proper priviledges, e.g. 
+   
+`set skip_tidsync = true; CREATE USER abc PASSWORD 'abc' superuser; `
 
-To start a PostgreSQL or Kunlun Summit process, do ./postgres -D pg-data-dir >logfile-5432.txt 2>&1 &
+Note that one should only set skip_tidsync = true during installation phases. The user 'abc' is intended for installation scripts to access the computing node, so assign necessary priviledges to it.
 
-4. Set PATH so that the 'mysql' client program can be found by shell and python.
+To start a PostgreSQL or Kunlun process, do :
 
+`./postgres -D pg-data-dir >logfile-5432.txt 2>&1 & `
 
-III. Bootstrapping:
-1. do bootstrap for a newly installed KunLun database cluster if its meta-data cluster is not initialized yet.
-python bootstrap.py --config=./meta-shard.json --bootstrap_sql=./meta_inuse.sql
-
-
-IV. Initialize distrbuted database cluster:
-
-python create_cluster.py --shards_config ./my-shards.json --comps_config ./my-comps.json  --meta_host 127.0.0.1 --meta_port 4602 --meta_user pgx --meta_pwd pgx_pwd --cluster_name clust2 --cluster_owner zw --cluster_biz test
-
-Now the cluster is installed properly and ready for use. You can startup the "Kunlun Summit" processes for each computing node, and the mysql processes for each storage shards and meta-data cluster, and connect to one of the computing nodes to interact with the Kunlun distributed database cluster.
+Note: Set PATH to include pg-data-dir/bin so that the 'mysql' client program can be found by shell and python; set LD_LIBRARY_PATH to include pg-data-dir/lib so that libraries used could be found.
 
 
+##III. Bootstrapping
+   
+Bootstrap for a newly installed KunLun database cluster if its meta-data cluster is not initialized yet.
+
+`python bootstrap.py --config=./meta-shard.json --bootstrap_sql=./meta_inuse.sql `
 
 
+##IV. Initialize distrbuted database cluster
+
+Simply execute below command to do so.
+
+`python create_cluster.py --shards_config ./my-shards.json --comps_config ./my-comps.json  --meta_host 127.0.0.1 --meta_port 4602 --meta_user pgx --meta_pwd pgx_pwd --cluster_name clust2 --cluster_owner zw --cluster_biz test `
+
+Now the cluster is installed properly and ready for use. You can startup the "Kunlun" processes for each computing node, and the mysql processes for each storage shards and meta-data cluster, and connect to one of the computing nodes to interact with the Kunlun distributed database cluster.
 
 If some time later you want to add more storage shards or computing nodes to the cluster, do the following:
 
 
-V. Add more shards to an existing cluster:
+##V. Add more shards to an existing cluster:
 
 Install storage shards as above step #2 of preparation phase, then do:
-python add_shards.py --config ./my-more-shards.json --meta_host 127.0.0.1 --meta_port 4602 --meta_user pgx --meta_pwd pgx_pwd --cluster_name clust2 
+
+`python add_shards.py --config ./my-more-shards.json --meta_host 127.0.0.1 --meta_port 4602 --meta_user pgx --meta_pwd pgx_pwd --cluster_name clust2 `
 
 
 
-VI. Add more computing nodes to an existing cluster:
+##VI. Add more computing nodes to an existing cluster:
 
 Install computing nodes as above step #3 of preparation phase, then do:
-python add_comp_nodes.py --config ./my-more-comps.json --meta_host 127.0.0.1 --meta_port 4602 --meta_user pgx --meta_pwd pgx_pwd --cluster_name clust2 
+
+`python add_comp_nodes.py --config ./my-more-comps.json --meta_host 127.0.0.1 --meta_port 4602 --meta_user pgx --meta_pwd pgx_pwd --cluster_name clust2 `
