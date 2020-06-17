@@ -8,23 +8,27 @@ import json
 
 
 # config file format:
+#
 #[
 #   {
-#      "id":2,  this ID must be identical to the 'comp_node_id' variable in this computing node's postgresql.conf config file.
-#      "name":"comp3",
+#      "id":1,
+#      "name":"comp1",
 #      "ip":"127.0.0.1",
-#      "port":5433,
-#      "user":"zw",
-#      "password":"zw"
+#      "port":5431,
+#      "user":"abc",
+#      "password":"abc"
+#      "datadir":"/data/pg_data_dir1"
 #   },    
 #   {
-#      "id":3,
-#      "name":"comp4",
+#      "id":2,
+#      "name":"comp2",
 #      "ip":"127.0.0.1",
-#      "port":5434,
-#      "user":"zw",
-#      "password":"zw"
+#      "port":5432,
+#      "user":"abc",
+#      "password":"abc"
+#      "datadir":"/data/pg_data_dir2"
 #   }
+#   , more computing node config objects can follow.
 #]
 
 
@@ -76,7 +80,7 @@ def add_computing_nodes(mysql_conn_params, args, config_path) :
         for meta_node in meta_dbnodes:
             is_master = False
             
-            if meta_node['ip'] == args.meta_host and meta_node['port'] == args.meta_port:
+            if meta_node['ip'] == mysql_conn_params['host'] and meta_node['port'] == mysql_conn_params['port']:
                 is_master = True
                 meta_master_id = meta_node['id']
 
@@ -111,24 +115,28 @@ def add_computing_nodes(mysql_conn_params, args, config_path) :
     meta_cursor.close()
     meta_cursor0.close()
     meta_conn.close()
-
+    jsconf.close()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Add one or more shard(s) to the cluster.')
-    parser.add_argument('--config', type=str, help="shard config file path");
-    parser.add_argument('--meta_host', type=str);
-    parser.add_argument('--meta_port', type=int);
-    parser.add_argument('--meta_user', type=str);
-    parser.add_argument('--meta_pwd', type=str);
+    parser = argparse.ArgumentParser(description='Add one or more computing node(s) to the cluster.')
+    parser.add_argument('--config', type=str, help="computing nodes config file path");
+    parser.add_argument('--meta_config', type=str, help="metadata cluster config file path");
     parser.add_argument('--cluster_name', type=str);
 
     args = parser.parse_args();
-    mysql_conn_params = {
-        'host':args.meta_host,
-        'port':args.meta_port,
-        'database':'pxm',
-        'user':args.meta_user,
-        'password':args.meta_pwd
-    }
+
+    meta_jsconf = open(args.meta_config);
+    meta_jstr = meta_jsconf.read()
+    meta_jscfg = json.loads(meta_jstr);
+    mysql_conn_params = {}
+
+    for node in meta_jscfg:
+        if node['is_master'] == True:
+            mysql_conn_params['host'] = node['ip']
+            mysql_conn_params['port'] = node['port']
+            mysql_conn_params['user'] = node['user']
+            mysql_conn_params['password'] = node['password']
+            mysql_conn_params['database'] = 'pxm'
+            
     add_computing_nodes(mysql_conn_params, args, args.config)
     print "Computing nodes successfully added to cluster " + args.cluster_name

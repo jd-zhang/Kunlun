@@ -1,7 +1,7 @@
 [
    {
       "ip": "127.0.0.1",
-      "port": 4607,
+      "port": 4001,
       "user": "pgx",
       "password":"pgx_pwd",
       "is_master":true
@@ -9,7 +9,14 @@
 
    {
       "ip": "127.0.0.1",
-      "port": 4608,
+      "port": 4002,
+      "user": "pgx",
+      "password":"pgx_pwd",
+      "is_master":false
+   },
+   {
+      "ip": "127.0.0.1",
+      "port": 4003,
       "user": "pgx",
       "password":"pgx_pwd",
       "is_master":false

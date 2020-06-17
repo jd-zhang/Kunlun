@@ -1,66 +1,129 @@
-#Installation Guides for Kunlun Distributed Database Cluster
+#Installation Guides for Kunlun Distributed Database Cluster(DDC)
 
 ##I. Prerequisites
 
 Install these software:
    
 0. Linux running on a X86 architecture, and python.
-1. MySQL-5.7 or MySQL-8.0 server
-2. MySQL python connector, provided in ./resources/mysql-connector-python-2.1.3.tar.gz
-3. PostgreSQL python connector, provided in ./resources/psycopg2-2.8.4.tar.gz
+1. Kunlun-Percona-MySQL-8.0.18-9 which is available here:
+2. MySQL python connector, provided in Kunlun/resources/mysql-connector-python-2.1.3.tar.gz
+3. PostgreSQL python connector, provided in Kunlun/resources/psycopg2-2.8.4.tar.gz
+4. Set PATH to include mysql-install-dir/bin so that the 'mysql' client program can be found by shell and python;
+   and set LD_LIBRARY_PATH to include Kunlun/lib: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:Kunlun/lib
 
 
 
-##II. Preparations:
+##II. Kunlun DDC Installation Procedures
+
+Unzip the Kunlun-xx.xx.tgz file into a directory, which we name as 'Kunlun' in this doc. Then follow the steps below, one after another.
 
 ###Installing Meta-data MySQL Cluster
-Install meta-data mysql cluster, and create a user for other components of the cluster to connect to the metadata cluster. Store the connection info in a file such as ./meta-shard.json. See the file meta-shard.json for example. This step is only needed once.
+
+A meta data cluster is a mysql group replication cluster that stores one or more Kunlun DDC's meta data. Users are required to use Kunlun-Percona-MySQL-8.0.18-9 for premium performance and reliability.
+
+This step is only needed if you don't yet have a meta-data cluster to use. Multiple Kunlun DDC can share the same meta data cluster.
+
+Install mysql instances of the meta-data cluster one after another using the install script and config template in Kunlun-Percona-MySQL-8.0.18-9/install. And create a user for other components of the cluster to connect to the metadata cluster. The installation script in Kunlun-Percona-MySQL-8.0.18-9 already creates such a user 'pgx'. 
+
+The meta data cluster must be running during the installation and when any Kunlun DDC is running.
+
+Store the connection info of all mysql instances of the meta data cluster in a config file of the same format as the template file in Kunlun/scripts/meta-shard.json. In this doc we name the config file 'my-meta.json'. The config file my-meta.json will be used in following steps.
+#### Metadata Cluster Config File Explained
+The connection info of the meta data cluster should be stored in a json file of below format. Its format and meaning is explained here. The json file contains an array of one or more config objects, each object contains basic info about a Kunlun-percona-mysql-8.0.18-9 database instance. All these instances form the metadata cluster.
+
+[
+   {
+      "ip": "127.0.0.1",    IP of the computer server on which the db instance runs
+      "port": 4001,         the db instance is listening on this port
+      "user": "pgx",        user name and password to connect to the db instance.
+      "password":"pgx_pwd",
+      "is_master":true      whether the db instance is a master node. there should be one and only one master node in the array
+   },
+   more config objects for other db instances of the meta data cluster.
+]
 
 ###Installing Storage Shards
-Install storage shards of the distributed database cluster, and create a user in each shard for other components of the cluster to connect to each of the shards. Store their connection info in a file such as ./my-shards.json. See the file shards-config.json for example.
-A storage shard and a meta-data mysql-cluster consists of one mysql master node and N mysql slave nodes. Install them as you did before. We recommend using mysql-8.0.x, you can also use MySQL-5.7.x, but not MySQL-5.6 or older. The meta data dump file ./meta_inuse.sql is dumped with mysql-8.0.15, so you may have to use mysql-8.0 for the metadata cluster.
+Install storage shards of the distributed database cluster, and create a user in each shard for other components of the cluster to connect to each of the shards. The installation script in Kunlun-Percona-MySQL-8.0.18-9 already creates such a user 'pgx'. Store their connection info in a config file of same format as Kunlun/scripts/shards-config.json. In this file we name such a file 'my-shards.json'.
+
+A storage shard and a meta-data mysql-cluster consists of one mysql master node and N mysql slave nodes. Users are required to use Kunlun DDC's dedicated Kunlun-percona-mysql-8.0.18-9, which contains fixes to all known XA bugs. Without such fixes, Kunlun DDC will not be crash safe and may lose committed transactions in the event of various hardware/software/network failures.
+
+In Kunlun-percona-mysql-8.0.18-9/install, there are scripts and configuration template file with recomended settings for users to install such an instance with premium configurations. Refer to the docs Kunlun-Percona-MySQL-8.0.18-9/INSTALL.Kunlun to install db instances.
+
+All the storage shards listed in the config file must be running during the installation otherwise installation will fail.
+
+#### Storage Shard Config File Explained
+The connection info of a storage shard should be stored in a json file of below format. Its format and meaning is explained here. The json file contains an array of one or more shard config objects, each object contains one shard's configs. In a shard's config, there are config objects of one or more db instances of the shard. 
+
+[
+{
+   "shard_name": "shard1",          name of the shard. storage shard names must be unique across a Kunlun DDC.
+   "shard_nodes":
+   [
+       {
+          "is_master":true,         whether this db instance is master of the shard. there must be one and only one master in each shard.
+          "ip": "127.0.0.1",        IP of the computer server on which the db instance runs
+          "port": 4101,             the db instance is listening on this port
+          "user": "pgx",            user name and password to connect to the db instance.
+          "password":"pgx_pwd"
+       },
+       more objects of db instances in shard1
+   ]
+}
+, more shards' config objects
+]
 
 
 ###Installing Computing Nodes
 
-Install computing nodes of Kunlun distributed database cluster using "KunLun", i.e. this piece of software, in the same way one installs a PostgreSQL database instance. 
+Install computing nodes of Kunlun distributed database cluster using "KunLun", i.e. this piece of software, using the script in Kunlun/scripts/install_pg.py
+One needs to prepare a config file using the template in Kunlun/scripts/comp-nodes.json. In this file we name it 'my-comps.json', and it will be used in next steps too. When you fill my-comps.json properly, run install_pg.py using the filled config file:
 
-Then create one or more users for clients to connect to each of the computing nodes. Especially, one such user is for the installation scripts to connect to each computing node. Store each computing node's connection info in a json file such as ./my-comps.json. See the file comp-nodes.json for example.
-The computing node must use the config file in ./resources/postgresql.conf, which contains necessary configs for variables added in Kunlun. After a "Kunlun" instance is installed, replace its config file in its data directory with ./resources/postgresql.conf, then set its info properly. At least you need to set the 'port' variable to your specified port number, and set the 'comp_node_id' variable to the id specified in the config file ./my-comps.json.
+`python install_pg.py config=my-comps.json install_ids=1,2,3`
 
+Note that the `install_ids` argument specifies the computing nodes that one wants to install on current server, by its ID in the config file. It can be 'all', to install all computing nodes specified in the config file into current server; Or it can be a comma seperated list of computing IDs to only install such nodes here.
 
-Steps to install a PostgreSQL or Kunlun instance:
-   
-1. Prepare an empty data directory, let's denote it 'pg-prog-dir' here. Go to pg-prog-dir.
-2. ./initdb -D pg-data-dir
-3. replace pg-data-dir/postgresql.conf with ./resources/postgresql.conf and set the 'port' variable to specified port
-4. start up postgres server
-5. connect to postgres server using default super user(same name as OS login name), e.g. ./psql -hlocalhost -p5443 -Udavid postgres
-6. create one or more users for clients to connect with, with proper priviledges, e.g. 
-   
-`set skip_tidsync = true; CREATE USER abc PASSWORD 'abc' superuser; `
+The install_pg.py will create the users you specified in the config file, this user will be used for cluster installation/uninstallation only. And you can create more users and assign proper priviledges to them. Refer to PostgreSQL documentation on how to do this.
 
-Note that one should only set skip_tidsync = true during installation phases. The user 'abc' is intended for installation scripts to access the computing node, so assign necessary priviledges to it.
+To start a PostgreSQL or Kunlun process, use the script in Kunlun/scripts/start_pg.py:
 
-To start a PostgreSQL or Kunlun process, do :
+`python start_pg.py port=5401`
 
-`./postgres -D pg-data-dir >logfile-5432.txt 2>&1 & `
+To shut it down, do:
 
-Note: Set PATH to include pg-data-dir/bin so that the 'mysql' client program can be found by shell and python; set LD_LIBRARY_PATH to include pg-data-dir/lib so that libraries used could be found.
+`Kunlun/bin/pg_ctl stop -D computing-node-datadir`
 
+All the computing nodes listed in the config file must be running during the installation otherwise installation will fail.
 
+#### Computing Node Config File Explained
+The connection info of computing nodes should be stored in a json file of below format. Its format and meaning is explained here. The json file contains an array of one or more config objects, each object contains basic info about a computing node.
+
+[
+   {
+      "id":1,               ID of the node. must be unique in a Kunlun DDC.
+      "name":"comp1",       name of the node. must be unique in a Kunlun DDC.
+      "ip":"127.0.0.1",     IP of the computer server on which the computing node runs
+      "port":5401,          the computing node is listening on this port
+      "user":"abc",         user name and password to connect to the computing node
+      "password":"abc",
+      "datadir":"/data/pg_data_dir1"    data directory of the node, only used when installing the computing node db instance. the target directory must be empty or non-existent.
+   }
+   , more config objects for other computing node of the cluster
+]
+
+ 
 ##III. Bootstrapping
-   
-Bootstrap for a newly installed KunLun database cluster if its meta-data cluster is not initialized yet.
 
-`python bootstrap.py --config=./meta-shard.json --bootstrap_sql=./meta_inuse.sql `
+When meta data cluster, computing nodes and storage shards are all installed, we can bootstrap the meta data cluster, i.e. to create meta data tables and stored procedures in it.
+Note that only bootstrap for a newly installed KunLun database cluster if its meta-data cluster is not initialized yet. The same meta data cluster can be used for multiple Kunlun DDC clusters, and users only need to do this step once for the 1st Kunlun DDC cluster.
+
+`python bootstrap.py --config=./my-meta.json --bootstrap_sql=./meta_inuse.sql `
 
 
 ##IV. Initialize distrbuted database cluster
 
 Simply execute below command to do so.
 
-`python create_cluster.py --shards_config ./my-shards.json --comps_config ./my-comps.json  --meta_host 127.0.0.1 --meta_port 4602 --meta_user pgx --meta_pwd pgx_pwd --cluster_name clust2 --cluster_owner zw --cluster_biz test `
+`python create_cluster.py --shards_config ./my-shards.json --comps_config ./my-comps.json  --meta_config ./my-meta.json --cluster_name clust1 --cluster_owner abc --cluster_biz test `
 
 Now the cluster is installed properly and ready for use. You can startup the "Kunlun" processes for each computing node, and the mysql processes for each storage shards and meta-data cluster, and connect to one of the computing nodes to interact with the Kunlun distributed database cluster.
 
@@ -69,14 +132,14 @@ If some time later you want to add more storage shards or computing nodes to the
 
 ##V. Add more shards to an existing cluster:
 
-Install storage shards as above step #2 of preparation phase, then do:
+Install more storage shards as above step #2 of preparation phase, then do below to add them into Kunlun DDC 'clust1'.
 
-`python add_shards.py --config ./my-more-shards.json --meta_host 127.0.0.1 --meta_port 4602 --meta_user pgx --meta_pwd pgx_pwd --cluster_name clust2 `
+`python add_shards.py --config ./my-more-shards.json --meta_config ./my-meta.json --cluster_name clust1 `
 
 
 
 ##VI. Add more computing nodes to an existing cluster:
 
-Install computing nodes as above step #3 of preparation phase, then do:
+Install computing nodes as above step #3 of preparation phase, then do below to add them into Kunlun DDC 'clust1'.
 
-`python add_comp_nodes.py --config ./my-more-comps.json --meta_host 127.0.0.1 --meta_port 4602 --meta_user pgx --meta_pwd pgx_pwd --cluster_name clust2 `
+`python add_comp_nodes.py --config ./my-more-comps.json --meta_config ./my-meta.json --cluster_name clust1 `

@@ -10,22 +10,25 @@ import add_shards
 parser = argparse.ArgumentParser(description='Create one cluster')
 parser.add_argument('--shards_config', type=str, help="shard config file path");
 parser.add_argument('--comps_config', type=str, help="computing nodes config file path");
-parser.add_argument('--meta_host', type=str);
-parser.add_argument('--meta_port', type=int);
-parser.add_argument('--meta_user', type=str);
-parser.add_argument('--meta_pwd', type=str);
+parser.add_argument('--meta_config', type=str, help="meta-shard config file path");
 parser.add_argument('--cluster_name', type=str);
 parser.add_argument('--cluster_owner', type=str); # owner name, e.g. department/group name, or employee name
 parser.add_argument('--cluster_biz', type=str); # used in which business ?
 
 args = parser.parse_args();
-mysql_conn_params = {
-    'host':args.meta_host,
-    'port':args.meta_port,
-    'database':'pxm',
-    'user':args.meta_user,
-    'password':args.meta_pwd,
-}
+
+meta_jsconf = open(args.meta_config);
+meta_jstr = meta_jsconf.read()
+meta_jscfg = json.loads(meta_jstr);
+mysql_conn_params = {}
+
+for node in meta_jscfg:
+    if node['is_master'] == True:
+        mysql_conn_params['host'] = node['ip']
+        mysql_conn_params['port'] = node['port']
+        mysql_conn_params['user'] = node['user']
+        mysql_conn_params['password'] = node['password']
+        mysql_conn_params['database'] = 'pxm'
 
 meta_conn = mysql.connector.connect(**mysql_conn_params)
 
@@ -56,5 +59,5 @@ meta_conn.close()
 print "Step 4. Adding computing nodes into cluster " + args.cluster_name
 add_comp_nodes.add_computing_nodes(mysql_conn_params, args, args.comps_config)
 print "Step 5. Adding storage shards into cluster " + args.cluster_name
-add_shards.add_shards_to_cluster(mysql_conn_params, args, args.shards_config)
+add_shards.add_shards_to_cluster(mysql_conn_params, args.cluster_name, args.shards_config)
 print "Installation complete for cluster " + args.cluster_name

@@ -54,3 +54,5 @@ meta_cursor0.execute("commit")
 meta_cursor.close()
 meta_cursor0.close()
 meta_conn.close()
+fbootstrap_sql.close()
+jsconf.close();
